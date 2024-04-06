@@ -11,12 +11,13 @@ const addressWarn = document.getElementById('address-warn')
 
 let cart = [];
 
-cartBtn.addEventListener('click' , () => {
+cartBtn.addEventListener('click', () => {
+  updateCartModal()
   cartModal.style.display = 'flex'
 })
 
-cartModal.addEventListener('click', function(event){
-  if(event.target === cartModal){
+cartModal.addEventListener('click', (event) => {
+  if (event.target === cartModal) {
     cartModal.style.display = 'none';
   }
 })
@@ -28,26 +29,87 @@ closeModalBtn.addEventListener('click', () => {
 menu.addEventListener('click', (event) => {
   let parentButton = event.target.closest('.add-to-cart-btn')
 
-  if(parentButton){
+  if (parentButton) {
     const name = parentButton.getAttribute('data-name')
-    const price = parseFloat( parentButton.getAttribute('data-price'))
+    const price = parseFloat(parentButton.getAttribute('data-price'))
 
     addToCart(name, price)
   }
 })
 
 const addToCart = (name, price) => {
-  const existingItem = cart.find( items => items.name = name)
+  const existingItem = cart.find(items => items.name === name)
 
-  if(existingItem){
+  if (existingItem) {
     existingItem.quantity += 1
+  } else {
+
+    cart.push({
+      name,
+      price,
+      quantity: 1
+    })
   }
 
+  updateCartModal()
+}
 
 
-  cart.push({
-    name,
-    price,
-    quantity: 1
+const updateCartModal = () => {
+  cartItemsContainer.innerHTML = ''
+  let total = 0;
+
+  cart.forEach(item => {
+    const cartItemsElement = document.createElement('div');
+    cartItemsElement.classList.add('flex', 'justify-between', 'mb-4', 'flex-col')
+    cartItemsElement.innerHTML = `
+      <div class='flex items-center justify-between'>
+        <div>
+          <p class='font-bold'>${item.name}</p>
+          <p>Qtd:${item.quantity}</p>
+          <p class='font-medium mt-2'>R$:${item.price.toFixed(2)}</p>
+        </div>
+        <div>
+          <button class='remove-from-cart-btn text-red-500' data-name='${item.name}'>
+            Remover
+          </button>
+        </div>
+      </div>
+    `
+
+    total += item.price * item.quantity
+    cartItemsContainer.appendChild(cartItemsElement)
   })
+
+  cartTotal.textContent = total.toLocaleString('pt-BR',{
+    style: 'currency',
+    currency: 'BRL'
+  })
+
+  cartCounter.innerHTML = cart.length
+}
+
+
+cartItemsContainer.addEventListener('click',(event) => {
+  if(event.target.classList.contains("remove-from-cart-btn")){
+    const name = event.target.getAttribute('data-name')
+    removeItemCart(name)
+  }
+})
+
+const removeItemCart = (name) => {
+  const indexItem = cart.findIndex(item => item.name === name)
+
+  if(index !== -1){
+    const item = cart[indexItem]
+
+    if(item.quantity > 1){
+      item.quantity -= 1;
+      updateCartModal()
+      return;
+    }
+
+    cart.splice(indexItem, 1)
+    updateCartModal()
+  }
 }
