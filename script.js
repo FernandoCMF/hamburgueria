@@ -98,18 +98,18 @@ cartItemsContainer.addEventListener('click',(event) => {
 })
 
 const removeItemCart = (name) => {
-  const indexItem = cart.findIndex(item => item.name === name)
+  const index = cart.findIndex(item => item.name === name)
 
   if(index !== -1){
-    const item = cart[indexItem]
-
+    const item = cart[index];
     if(item.quantity > 1){
-      item.quantity -= 1;
+      item.quantity -= 1
       updateCartModal()
-      return;
+      return
     }
 
-    cart.splice(indexItem, 1)
+    cart.splice(index, 1)
     updateCartModal()
+    
   }
 }
